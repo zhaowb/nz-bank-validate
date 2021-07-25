@@ -9,6 +9,14 @@ watch/%: export PYTHONPATH=.
 watch/%:
 	ptw tests/$* nz_bank_validate -- -vv
 
+test: export PYTHONPATH=.
+test:
+	pytest tests/ -vv
+
+test/%: export PYTHONPATH=.
+test/%:
+	pytest tests/$* -vv
+
 develop:
 	python3 setup.py develop
 
