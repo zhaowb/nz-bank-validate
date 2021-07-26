@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nz-bank-validate",
-    version="1.0.0",
+    version="1.0.1",
     author="Wenbo Zhao",
     author_email="zhaowb@gmail.com",
     description="Validates account numbers for New Zealand banks",

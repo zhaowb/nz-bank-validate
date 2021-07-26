@@ -159,3 +159,118 @@ def nz_bank_validate(bank: str, branch: str, base: str, suffix: str, *, return_f
             return False
         raise ValueError('invalid')
     return True
+
+
+def f1(digit: int, factor: int) -> int:
+    return digit * factor
+
+def f2(digit: int, factor: int) -> int:
+    result = digit * factor
+    result = (result // 10) + (result % 10)
+    result = (result // 10) + (result % 10)
+    return result
+
+from typing import Callable
+def get_multiply_by_algorithm(algorithm: str) -> Callable[[int, int], int]:
+    if algorithm in ('E', 'G'):
+        return f2
+    return f1
+
+
+def nz_bank_validate2(bank: str, branch: str, base: str, suffix: str, *, return_false_on_fail=False) -> bool:
+    """Validate New Zealand bank account number, return True if valid, raise ValueError('invalid') if invalid
+    or return False if invalid and option return_false_on_fail=True
+    Example:
+    ``nz_bank_validate(*'01-902-0068389-00'.split('-'))``
+    or
+    ``nz_bank_validate('01', '902', '0068389', '00')``
+    """
+    bank = bank.zfill(max_length['bank'])
+    branch = branch.zfill(max_length['branch'])
+    base = base.zfill(max_length['base'])
+    suffix = suffix.zfill(max_length['suffix'])
+    for value, length in zip([bank, branch, base, suffix], max_length.values()):
+        if len(value) != length:
+            if return_false_on_fail:
+                return False
+            raise ValueError('invalid')
+    if not check_branch_number(bank, branch):
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    algo = get_algorithm(bank, branch, base, suffix)
+    if algo not in weights:
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    weight, modulo = weights[algo]
+    number = ''.join((bank, branch, base, suffix))
+    assert len(number) == len(weight)
+    mul = get_multiply_by_algorithm(algo)
+    sum_weight = sum(
+        # mul(int(digit), factor)
+        mul(ord(digit) - 48, factor)
+        for digit, factor in zip(number, weight)
+    )
+    if (sum_weight % modulo) != 0:
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    return True
+
+
+digit_factor1 = [
+    [f1(digit, factor) for factor in range(11)]
+    for digit in range(10)
+]
+digit_factor2 = [
+    [f2(digit, factor) for factor in range(11)]
+    for digit in range(10)
+]
+from typing import List
+def get_matrix_by_algorithm(algorithm: str) -> List[List[int]]:
+    if algorithm in ('E', 'G'):
+        return digit_factor2
+    return digit_factor1
+
+def nz_bank_validate3(bank: str, branch: str, base: str, suffix: str, *, return_false_on_fail=False) -> bool:
+    """Validate New Zealand bank account number, return True if valid, raise ValueError('invalid') if invalid
+    or return False if invalid and option return_false_on_fail=True
+    Example:
+    ``nz_bank_validate(*'01-902-0068389-00'.split('-'))``
+    or
+    ``nz_bank_validate('01', '902', '0068389', '00')``
+    """
+    bank = bank.zfill(max_length['bank'])
+    branch = branch.zfill(max_length['branch'])
+    base = base.zfill(max_length['base'])
+    suffix = suffix.zfill(max_length['suffix'])
+    for value, length in zip([bank, branch, base, suffix], max_length.values()):
+        if len(value) != length:
+            if return_false_on_fail:
+                return False
+            raise ValueError('invalid')
+    if not check_branch_number(bank, branch):
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    algo = get_algorithm(bank, branch, base, suffix)
+    if algo not in weights:
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    weight, modulo = weights[algo]
+    number = ''.join((bank, branch, base, suffix))
+    assert len(number) == len(weight)
+    matrix = get_matrix_by_algorithm(algo)
+    sum_weight = sum(
+        # mul(int(digit), factor)
+        matrix[ord(digit) - 48][factor]
+        for digit, factor in zip(number, weight)
+    )
+    if (sum_weight % modulo) != 0:
+        if return_false_on_fail:
+            return False
+        raise ValueError('invalid')
+    return True
+
